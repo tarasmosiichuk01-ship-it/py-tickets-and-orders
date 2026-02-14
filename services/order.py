@@ -14,11 +14,12 @@ def create_order(
         date: str = None
 ) -> Order:
     user = get_user_model().objects.get(username=username)
-    order_data = {"user": user}
+    order = Order.objects.create(user=user)
     if date:
-        order_data["created_at"] = parse_datetime(date)
-
-    order = Order.objects.create(**order_data)
+        Order.objects.filter(pk=order.pk).update(
+            created_at=parse_datetime(date)
+        )
+        order.refresh_from_db()
 
     for ticket in tickets:
         movie_session = MovieSession.objects.get(id=ticket["movie_session"])
